@@ -9,7 +9,7 @@ import datetime
 import time
 
 pair="btc_usd"
-wait_sec=10
+wait_sec=9
 min_amount=0.86
 
 class Command(BaseCommand):
