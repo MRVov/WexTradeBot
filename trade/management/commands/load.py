@@ -7,22 +7,37 @@ import json
 import requests
 import datetime
 import time
+import logging
+import sys, traceback
+
+# Get an instance of a logger
+
+logging.basicConfig(format = u'%(levelname)-8s [%(asctime)s] %(message)s', level = logging.DEBUG, filename = u'/var/log/trade.log')
 
 pair="btc_usd"
-wait_sec=9
+wait_sec=100
 min_amount=0.86
+limit=2000
+
 
 class Command(BaseCommand):
-    def add(self):
+
+    def add_log(self, message):
+        self.stdout.write(self.style.SUCCESS(message))
+        logging.debug(message)
+
+    def add(self, pair):
         add_count = 0
         try:
-            response = requests.get('https://btc-e.nz/api/3/trades/btc_usd')
+            response = requests.get('https://btc-e.nz/api/3/trades/%s?limit=%d' % (pair,limit))
         except:
-            self.stdout.write(self.style.SUCCESS('Equest error ' ))
-            time.sleep(20)
+            self.add_log('Equest error')
+            self.add_log(traceback.print_exc(file=sys.stdout))
+
+            time.sleep(wait_sec)
             self.add()
 
-        json_data = json.loads(response.text)['btc_usd']
+        json_data = json.loads(response.text)[pair]
 
         for curr in json_data:
             dt = datetime.datetime.fromtimestamp(curr['timestamp'])
@@ -36,15 +51,24 @@ class Command(BaseCommand):
 
             res = History.objects.filter(id=id)
             if len(res) == 0:
-                h = History(id=id, type=curr['type'], price=curr['price'], amount=amount, dt=dt)
+                h = History(id=id, type=curr['type'], price=curr['price'], amount=amount, dt=dt, pair=pair)
                 h.save()
+
+
                 add_count += 1
 
         if add_count>0:
-            self.stdout.write(self.style.SUCCESS('Successfully addes %d records' % add_count))
+            self.add_log('Pair %s Successfully addes %d records' % (pair,add_count))
 
-        time.sleep(wait_sec)
-        self.add()
+        #time.sleep(wait_sec)
+        #self.add()
 
     def handle(self, *args, **options):
-        self.add()
+        self.add('btc_usd')
+        self.add('ltc_usd')
+        self.add('nmc_usd')
+        self.add('nvc_usd')
+        self.add('ppc_usd')
+        self.add('dsh_usd')
+        self.add('eth_usd')
+
