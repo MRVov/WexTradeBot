@@ -127,3 +127,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+SERIOUS_PRICE = 30000
+
+

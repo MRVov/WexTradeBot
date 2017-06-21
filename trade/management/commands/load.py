@@ -9,6 +9,7 @@ import datetime
 import time
 import logging
 import sys, traceback
+from django.conf import settings
 
 # Get an instance of a logger
 
@@ -16,7 +17,7 @@ logging.basicConfig(format = u'%(levelname)-8s [%(asctime)s] %(message)s', level
 
 pair="btc_usd"
 wait_sec=100
-min_amount=0.86
+
 limit=2000
 
 
@@ -40,20 +41,24 @@ class Command(BaseCommand):
         json_data = json.loads(response.text)[pair]
 
         for curr in json_data:
-            dt = datetime.datetime.fromtimestamp(curr['timestamp'])
-            dt = timezone.make_aware(dt, timezone.get_current_timezone())
-            amount=float(curr['amount'])
+            serious_price = getattr(settings, "SERIOUS_PRICE", 30000)
 
-            if amount<min_amount:
-                continue
+            price=curr['price']
+            amount = float(curr['amount'])
+            total=price*amount
 
             id = int(curr['tid'])
 
+            dt = datetime.datetime.fromtimestamp(curr['timestamp'])
+            dt = timezone.make_aware(dt, timezone.get_current_timezone())
+
+            if total<serious_price:
+                continue
+
             res = History.objects.filter(id=id)
             if len(res) == 0:
-                h = History(id=id, type=curr['type'], price=curr['price'], amount=amount, dt=dt, pair=pair)
+                h = History(id=id, type=curr['type'], price=price, amount=amount, dt=dt, pair=pair)
                 h.save()
-
 
                 add_count += 1
 
