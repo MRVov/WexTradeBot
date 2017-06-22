@@ -39,6 +39,13 @@ def order(request, order_id):
     return render(request, 'managers/order.html', {
     })
 
+def main(request):
+    context={}
+    context['pairs']=getattr(settings, "PAIRS", ['btc_usd'])
+    context['period'] =10
+
+    return render(request, 'index.html', context)
+
 def graphic(request, pair, period):
     serious_price=getattr(settings, "SERIOUS_PRICE", 30000)
 

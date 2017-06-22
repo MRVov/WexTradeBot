@@ -127,6 +127,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-SERIOUS_PRICE = 30000
+SERIOUS_PRICE = 20000
+PAIRS=['btc_usd', 'ltc_usd', 'nmc_usd', 'nvc_usd', 'ppc_usd', 'dsh_usd', 'eth_usd']
+
+
 
 

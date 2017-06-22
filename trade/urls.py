@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^order(?P<order_id>[0-9]+)/$', views.order),
     url(r'^graphic/([a-z_]{7})/([0-9]+)/$', views.graphic),
+    url(r'^$', views.main),
 
 ]
